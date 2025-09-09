@@ -45,8 +45,7 @@ footer {
 .horizontal-line {
         border-bottom: 2px solid black; /* Creates a 2px solid black line at the bottom */
         width: 50%; /* Makes the line span the full width */
-        margin: 15px 0; /* Adds some spacing above and below */
-		text-align: center;
+		margin: 0 auto;
     }
 
     .vertical-line {
@@ -55,16 +54,3 @@ footer {
         display: inline-block; /* Allows side-by-side placement if needed */
         margin-left: 10px;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
