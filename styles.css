@@ -34,6 +34,18 @@ p {
 		text-align: center;
 	}
 
+.horizontal-line {
+        border-bottom: 2px solid black; /* Creates a 2px solid black line at the bottom */
+        width: 100%; /* Makes the line span the full width */
+        margin: 15px 0; /* Adds some spacing above and below */
+    }
+
+    .vertical-line {
+        border-left: 1px solid gray; /* Creates a 1px solid gray line on the left */
+        height: 100px; /* Sets the height of the vertical line */
+        display: inline-block; /* Allows side-by-side placement if needed */
+        margin-left: 10px;
+    }
 
 
 
