@@ -19,7 +19,7 @@ h2 {
 
 h3 {
 	color: #333;
-        font-size: 16px;
+        font-size: 10px;
         line-height: 1.5;
 		text-align: center;
 	}
@@ -53,6 +53,7 @@ footer {
         display: inline-block; /* Allows side-by-side placement if needed */
         margin-left: 10px;
     }
+
 
 
 
