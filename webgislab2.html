@@ -4,6 +4,29 @@
 <meta charset="utf-8">
 <title>Lab 2 for Web GIS</title>
 <link rel="stylesheet" href="styles.css" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+html { height:100% }
+body { height:100%; margin:0; padding:0 }
+#map_canvas { height:60vh; width:100% }
+</style>
+<script
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5U-
+lTv1hoJo_-ON8qVBXtEGXfZI80S7k">
+</script>
+<script>
+function initialize()
+{
+var latlng = new google.maps.LatLng(35.306840, -80.73200);
+var myOptions = {
+zoom: 16,
+center: latlng,
+mapTypeId: google.maps.MapTypeId.HYBRID
+};
+new google.maps.Map(document.getElementById("map_canvas"),
+myOptions);
+}
+</script>
 </head>
 <body>
 <h1>Lab 2 for Web GIS</h1>
@@ -23,5 +46,6 @@ document.write(Math.random());
 </script>
 </body>
 </html>
+
 
 
