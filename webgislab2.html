@@ -28,7 +28,7 @@ myOptions);
 }
 </script>
 </head>
-<body>
+<<body onload="initialize()">
 <h1>Lab 2 for Web GIS</h1>
 <h3>Name: Jordan Quinn</h3>
 <h3>Current Date is: </h3>
@@ -44,8 +44,33 @@ document.write(Date());
 <script type="text/javascript">
 document.write(Math.random());
 </script>
+<h3>Define variables and perform calculation:</h3>
+<script>
+var str1 = "Hello World";
+document.write(str1);
+document.write("<br>");
+var x = 5;
+var y = 10;
+var z = x + y;
+document.write("x + y = " + z);
+document.write("<br><br>");
+</script>
+<h3>Define a function (sum of three numbers):</h3>
+<script>
+function sum3(x1, x2, x3) {
+var sum = x1 + x2 + x3;
+return sum;
+}
+var k = sum3(5, 6, 7);
+document.write("sum3(5, 6, 7) = " + k);
+document.write("<br>");
+document.write("sum3(10, 20, 30) = " + sum3(10, 20, 30));
+</script>
+<div id="map_canvas" style="width:50%; height:50%"></div>
+
 </body>
 </html>
+
 
 
 
