@@ -27,6 +27,126 @@ new google.maps.Map(document.getElementById("map_canvas"),
 myOptions);
 }
 </script>
+    
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+html { height:100% }
+body { height:100%; margin:0 auto; padding:0 auto }
+#map_canvas1 { height:60vh; width:100%; margin:0 auto; <!-- This centers the map --!>}
+</style>
+<script
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5U-
+lTv1hoJo_-ON8qVBXtEGXfZI80S7k">
+</script>
+<script>
+function initialize()
+{
+var latlng = new google.maps.LatLng(35.22721307741346, -80.84308519823675);
+var myOptions = {
+zoom: 16,
+center: latlng,
+mapTypeId: google.maps.MapTypeId.HYBRID
+};
+new google.maps.Map(document.getElementById("map_canvas1"),
+myOptions);
+}
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+html { height:100% }
+body { height:100%; margin:0 auto; padding:0 auto }
+#map_canvas2 { height:60vh; width:100%; margin:0 auto; <!-- This centers the map --!>}
+</style>
+<script
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5U-
+lTv1hoJo_-ON8qVBXtEGXfZI80S7k">
+</script>
+<script>
+function initialize()
+{
+var latlng = new google.maps.LatLng(35.212617964691, -80.94988860002893);
+var myOptions = {
+zoom: 10,
+center: latlng,
+mapTypeId: google.maps.MapTypeId.HYBRID
+};
+new google.maps.Map(document.getElementById("map_canvas2"),
+myOptions);
+}
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+html { height:100% }
+body { height:100%; margin:0 auto; padding:0 auto }
+#map_canvas3 { height:60vh; width:100%; margin:0 auto; <!-- This centers the map --!>}
+</style>
+<script
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5U-
+lTv1hoJo_-ON8qVBXtEGXfZI80S7k">
+</script>
+<script>
+function initialize()
+{
+var latlng = new google.maps.LatLng(36.036824969717735, -78.9001355005843);
+var myOptions = {
+zoom: 16,
+center: latlng,
+mapTypeId: google.maps.MapTypeId.HYBRID
+};
+new google.maps.Map(document.getElementById("map_canvas3"),
+myOptions);
+}
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+html { height:100% }
+body { height:100%; margin:0 auto; padding:0 auto }
+#map_canvas4 { height:60vh; width:100%; margin:0 auto; <!-- This centers the map --!>}
+</style>
+<script
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5U-
+lTv1hoJo_-ON8qVBXtEGXfZI80S7k">
+</script>
+<script>
+function initialize()
+{
+var latlng = new google.maps.LatLng(35.41025989485956, -80.5808284855165);
+var myOptions = {
+zoom: 16,
+center: latlng,
+mapTypeId: google.maps.MapTypeId.HYBRID
+};
+new google.maps.Map(document.getElementById("map_canvas4"),
+myOptions);
+}
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+html { height:100% }
+body { height:100%; margin:0 auto; padding:0 auto }
+#map_canvas5 { height:60vh; width:100%; margin:0 auto; <!-- This centers the map --!>}
+</style>
+<script
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5U-
+lTv1hoJo_-ON8qVBXtEGXfZI80S7k">
+</script>
+<script>
+function initialize()
+{
+var latlng = new google.maps.LatLng(36.218253398412706, -81.6831075979438);
+var myOptions = {
+zoom: 16,
+center: latlng,
+mapTypeId: google.maps.MapTypeId.HYBRID
+};
+new google.maps.Map(document.getElementById("map_canvas5"),
+myOptions);
+}
+</script>
 </head>
 <<body onload="initialize()">
 <h1>Lab 2 for Web GIS</h1>
@@ -81,9 +201,69 @@ document.write("sum3(10, 20, 30) = " + sum3(10, 20, 30));
     
 </h3>
 <div class="horizontal-line"></div>
+<h3>
+
+    
+</h3>
+<h3>Charlotte City Center (Focused on the Trade Street, Tryon Street Intersection)</h3>
+<div id="map_canvas1" style="width:50%; height:50%"></div>
+<h3>
+
+    
+</h3>
+<div class="horizontal-line"></div>
+<h3>
+
+    
+</h3>
+<h3>Charlotte Douglas International Airport</h3>
+<div id="map_canvas2" style="width:50%; height:50%"></div>
+    <h3>
+
+    
+</h3>
+<div class="horizontal-line"></div>
+<h3>
+
+    
+</h3>
+<h3>Durham Regional Hospital</h3>
+<div id="map_canvas3" style="width:50%; height:50%"></div>
+<h3>
+
+    
+</h3>
+<div class="horizontal-line"></div>
+<h3>
+
+    
+</h3>
+<h3>Downtown Concord, NC</h3>
+<div id="map_canvas4" style="width:50%; height:50%"></div>
+<h3>
+
+    
+</h3>
+<div class="horizontal-line"></div>
+<h3>
+
+    
+</h3>
+<h3>Downtown Boone, NC</h3>
+<div id="map_canvas5" style="width:50%; height:50%"></div>
+<h3>
+
+    
+</h3>
+<div class="horizontal-line"></div>
+<h3>
+
+    
+</h3>
 <footer>Email: jquinn25@charlotte.edu</footer>
 </body>
 </html>
+
 
 
 
