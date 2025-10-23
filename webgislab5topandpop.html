@@ -37,16 +37,19 @@
     const osmLayer = new ol.layer.Tile({
       source: new ol.source.OSM(),
       visible: true,
-      title: 'osm'
+      title: 'osm',
+      zIndex: 0
     });
 
     const esriLayer = new ol.layer.Tile({
       source: new ol.source.XYZ({
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        attributions: 'Tiles © Esri'
+        attributions: 'Tiles © Esri',
+        crossOrigin: 'anonymous' // ✅ fix for ESRI imagery
       }),
       visible: false,
-      title: 'esri'
+      title: 'esri',
+      zIndex: 0
     });
 
     const usgsTopoLayer = new ol.layer.Tile({
@@ -55,7 +58,8 @@
         attributions: '© USGS'
       }),
       visible: false,
-      title: 'topo'
+      title: 'topo',
+      zIndex: 0
     });
 
     // WMS overlays
@@ -66,7 +70,8 @@
         serverType: 'geoserver',
         crossOrigin: 'anonymous'
       }),
-      visible: true
+      visible: true,
+      zIndex: 1
     });
 
     const popOverlay = new ol.layer.Tile({
@@ -76,7 +81,8 @@
         serverType: 'geoserver',
         crossOrigin: 'anonymous'
       }),
-      visible: false
+      visible: false,
+      zIndex: 2
     });
 
     // Map
