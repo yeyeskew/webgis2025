@@ -84,10 +84,19 @@
       target: 'map',
       layers: [osmLayer, esriLayer, usgsTopoLayer, usgsWMS, popOverlay],
       view: new ol.View({
-        center: ol.proj.fromLonLat([-98.5795, 39.8283]), // Continental US center
+        center: ol.proj.fromLonLat([-98.5795, 39.8283]),
         zoom: 4
-      })
+      }),
+      controls: ol.control.defaults({ zoom: false }) // remove default zoom
     });
+
+    // Add zoom control at bottom-left
+    const zoomControl = new ol.control.Zoom();
+    map.addControl(zoomControl);
+    zoomControl.element.style.bottom = '10px';
+    zoomControl.element.style.left = '10px';
+    zoomControl.element.style.top = 'auto';
+    zoomControl.element.style.right = 'auto';
 
     // Basemap switcher
     document.querySelectorAll('input[name="basemap"]').forEach(radio => {
