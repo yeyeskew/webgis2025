@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>OpenLayers Map with Basemaps & Population Overlay</title>
+  <title>OpenLayers Map with Basemaps and Overlays</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol/ol.css">
   <style>
-    html, body { margin:0; padding:0; height:100%; }
-    #map { width:100%; height:100%; }
+    html, body { margin: 0; padding: 0; height: 100%; }
+    #map { width: 100%; height: 100%; }
     #controls {
       position: absolute;
       top: 10px;
@@ -16,7 +16,7 @@
       z-index: 1000;
       font-family: Arial, sans-serif;
     }
-    label { display:block; margin-bottom:5px; }
+    label { display: block; margin-bottom: 5px; }
   </style>
 </head>
 <body>
@@ -26,10 +26,10 @@
     <label><input type="radio" name="basemap" value="esri"> ESRI Imagery</label>
     <label><input type="radio" name="basemap" value="topo"> USGS Topo</label>
     <strong>Overlays:</strong>
-    <label><input type="checkbox" id="wmsToggle" checked> USGS WMS</label>
+    <label><input type="checkbox" id="statesToggle" checked> States WMS</label>
     <label><input type="checkbox" id="popToggle"> Population Overlay</label>
   </div>
-  <div id="map" class="map"></div>
+  <div id="map"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/ol/ol.js"></script>
   <script>
@@ -37,7 +37,6 @@
     const osmLayer = new ol.layer.Tile({
       source: new ol.source.OSM(),
       visible: true,
-      title: 'osm',
       zIndex: 0
     });
 
@@ -45,28 +44,31 @@
       source: new ol.source.XYZ({
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         attributions: 'Tiles © Esri',
-        crossOrigin: 'anonymous' // ✅ fix for ESRI imagery
+        crossOrigin: 'anonymous'
       }),
       visible: false,
-      title: 'esri',
       zIndex: 0
     });
 
-    const usgsTopoLayer = new ol.layer.Tile({
+    const topoLayer = new ol.layer.Tile({
       source: new ol.source.XYZ({
         url: 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
         attributions: '© USGS'
       }),
       visible: false,
-      title: 'topo',
       zIndex: 0
     });
 
-    // WMS overlays
-    const usgsWMS = new ol.layer.Tile({
+    // States WMS overlay
+    const statesWMS = new ol.layer.Tile({
       source: new ol.source.TileWMS({
-        url: 'https://basemap.nationalmap.gov/arcgis/services/USGSTopo/MapServer/WMSServer',
-        params: { 'LAYERS': '0', 'TILED': true, 'FORMAT': 'image/png' },
+        url: 'https://ahocevar.com/geoserver/wms',
+        params: {
+          'LAYERS': 'topp:states',
+          'FORMAT': 'image/png',
+          'TILED': true,
+          'SRS': 'EPSG:3857' // use 3857 to match Web Mercator map projection
+        },
         serverType: 'geoserver',
         crossOrigin: 'anonymous'
       }),
@@ -74,10 +76,15 @@
       zIndex: 1
     });
 
+    // Population overlay (Census WMS)
     const popOverlay = new ol.layer.Tile({
       source: new ol.source.TileWMS({
         url: 'https://tigerweb.geo.census.gov/arcgis/services/TIGERweb/tigerWMS_Current/MapServer/WMSServer',
-        params: { 'LAYERS': 'Census Tracts', 'TILED': true, 'FORMAT': 'image/png' },
+        params: {
+          'LAYERS': 'Census Tracts', // population data
+          'FORMAT': 'image/png',
+          'TILED': true
+        },
         serverType: 'geoserver',
         crossOrigin: 'anonymous'
       }),
@@ -88,15 +95,15 @@
     // Map
     const map = new ol.Map({
       target: 'map',
-      layers: [osmLayer, esriLayer, usgsTopoLayer, usgsWMS, popOverlay],
+      layers: [osmLayer, esriLayer, topoLayer, statesWMS, popOverlay],
       view: new ol.View({
-        center: ol.proj.fromLonLat([-98.5795, 39.8283]),
+        center: ol.proj.fromLonLat([-98.5795, 39.8283]), // continental US
         zoom: 4
       }),
-      controls: ol.control.defaults({ zoom: false }) // remove default zoom
+      controls: ol.control.defaults({ zoom: false })
     });
 
-    // Add zoom control at bottom-left
+    // Add zoom control bottom-left
     const zoomControl = new ol.control.Zoom();
     map.addControl(zoomControl);
     zoomControl.element.style.bottom = '10px';
@@ -109,15 +116,14 @@
       radio.addEventListener('change', e => {
         osmLayer.setVisible(e.target.value === 'osm');
         esriLayer.setVisible(e.target.value === 'esri');
-        usgsTopoLayer.setVisible(e.target.value === 'topo');
+        topoLayer.setVisible(e.target.value === 'topo');
       });
     });
 
     // Overlay toggles
-    document.getElementById('wmsToggle').addEventListener('change', e => {
-      usgsWMS.setVisible(e.target.checked);
+    document.getElementById('statesToggle').addEventListener('change', e => {
+      statesWMS.setVisible(e.target.checked);
     });
-
     document.getElementById('popToggle').addEventListener('change', e => {
       popOverlay.setVisible(e.target.checked);
     });
