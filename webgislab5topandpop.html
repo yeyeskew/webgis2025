@@ -3,107 +3,83 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Leaflet Map: Basemaps + WMS + Population Overlay</title>
+  <title>Leaflet Map: USGS Topo with Population Overlay</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    body { margin:0; padding:0; font-family: Arial,-sans-serif; }
-    #controls { padding:10px; background:#f8f8f8; border-bottom:1px solid #ccc; }
-    label { margin-right:15px; }
-    #map { width:100%; height:90vh; }
+    body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    #map { width: 100%; height: 100vh; }
+    #controls { position: absolute; top: 10px; left: 10px; background: white; padding: 10px; z-index: 1000; }
   </style>
 </head>
 <body>
   <div id="controls">
-    <strong>Basemap:</strong>
-    <label><input type="radio" name="basemap" value="osm" checked> OSM</label>
+    <label><input type="radio" name="basemap" value="osm" checked> OpenStreetMap</label>
     <label><input type="radio" name="basemap" value="esri"> ESRI Imagery</label>
-    <label><input type="radio" name="basemap" value="topo"> Topography</label>
-    <strong> | </strong>
-    <label><input type="checkbox" id="wmsToggle" checked> Show States WMS</label>
+    <label><input type="radio" name="basemap" value="topo"> USGS Topo</label>
+    <br>
+    <label><input type="checkbox" id="wmsToggle" checked> Show USGS WMS Layer</label>
     <label><input type="checkbox" id="popToggle"> Show Population Overlay</label>
   </div>
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // Basemaps
+    const map = L.map('map', {
+      center: [39.8283, -98.5795], // Centered on the continental US
+      zoom: 4
+    });
+
     const baseLayers = {
       osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap contributors'
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }),
       esri: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 19,
-        attribution: 'Tiles © Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+        attribution: '&copy; <a href="https://www.esri.com">ESRI</a>'
       }),
-      topo: L.tileLayer('https://a.tile.opentopomap.org/{z}/{x}/{y}.png', {
-        maxZoom: 17,
-        attribution: '© OpenTopoMap, OSM contributors'
+      topo: L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '&copy; <a href="https://www.usgs.gov">USGS</a>'
       })
     };
 
-    // WMS overlay for states
-    const wmsStates = L.tileLayer.wms('https://ahocevar.com/geoserver/wms', {
-      layers: 'topp:states',
+    const wmsLayer = L.tileLayer.wms('https://basemap.nationalmap.gov/arcgis/services/USGSTopo/MapServer/WMSServer', {
+      layers: '0', // USGS Topo layer
       format: 'image/png',
       transparent: true,
-      version: '1.1.1',
-      crs: L.CRS.EPSG3857,
-      attribution: 'WMS © ahocevar.com',
-      // Optional tile size or tile grid could be specified if needed
-    }).setZIndex(500);
-
-    // Population overlay (placeholder; use correct layer)
-    const popOverlay = L.tileLayer.wms('https://tigerweb.geo.census.gov/arcgis/services/TIGERweb/tigerWMS_Current/MapServer/WMSServer', {
-      layers: 'Census Tracts',  // ensure this is correct
-      format: 'image/png',
-      transparent: true,
-      version: '1.3.0',
-      crs: L.CRS.EPSG3857,
-      attribution: '© U.S. Census Bureau'
-    }).setZIndex(600);
-
-    // Initialize map
-    const map = L.map('map', {
-      center: [39.8, -98.5],
-      zoom: 4,
-      layers: [baseLayers.osm, wmsStates]
+      attribution: '&copy; <a href="https://www.usgs.gov">USGS</a>'
     });
 
-    let currentBase = baseLayers.osm;
+    const popOverlay = L.tileLayer.wms('https://tigerweb.geo.census.gov/arcgis/services/TIGERweb/tigerWMS_Current/MapServer/WMSServer', {
+      layers: 'Census Tracts',  // Ensure this layer exists
+      format: 'image/png',
+      transparent: true,
+      attribution: '&copy; <a href="https://www.census.gov">U.S. Census Bureau</a>'
+    });
 
-    // Basemap switcher
+    baseLayers.osm.addTo(map);
+
     document.querySelectorAll('input[name="basemap"]').forEach(radio => {
-      radio.addEventListener('change', event => {
-        const selected = baseLayers[event.target.value];
-        if (selected && selected !== currentBase) {
-          map.removeLayer(currentBase);
-          map.addLayer(selected);
-          currentBase = selected;
-          // bring overlays to front
-          if (map.hasLayer(wmsStates)) wmsStates.bringToFront();
-          if (map.hasLayer(popOverlay)) popOverlay.bringToFront();
-        }
+      radio.addEventListener('change', (e) => {
+        const selectedLayer = baseLayers[e.target.value];
+        map.removeLayer(baseLayers.osm);
+        map.removeLayer(baseLayers.esri);
+        map.removeLayer(baseLayers.topo);
+        selectedLayer.addTo(map);
       });
     });
 
-    // WMS toggle
-    document.getElementById('wmsToggle').addEventListener('change', evt => {
-      if (evt.target.checked) {
-        map.addLayer(wmsStates);
-        wmsStates.bringToFront();
+    document.getElementById('wmsToggle').addEventListener('change', (e) => {
+      if (e.target.checked) {
+        wmsLayer.addTo(map);
       } else {
-        map.removeLayer(wmsStates);
+        wmsLayer.removeFrom(map);
       }
     });
 
-    // Population overlay toggle
-    document.getElementById('popToggle').addEventListener('change', evt => {
-      if (evt.target.checked) {
-        map.addLayer(popOverlay);
-        popOverlay.bringToFront();
+    document.getElementById('popToggle').addEventListener('change', (e) => {
+      if (e.target.checked) {
+        popOverlay.addTo(map);
       } else {
-        map.removeLayer(popOverlay);
+        popOverlay.removeFrom(map);
       }
     });
   </script>
