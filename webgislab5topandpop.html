@@ -42,37 +42,43 @@
       })
     };
 
-    // WMS overlay for states (your existing layer)
+    // WMS overlay for states
     const wmsStates = L.tileLayer.wms('https://ahocevar.com/geoserver/wms', {
       layers: 'topp:states',
       format: 'image/png',
       transparent: true,
       version: '1.1.1',
-      attribution: 'WMS © ahocevar.com',
-      crs: L.CRS.EPSG3857
-    });
+      crs: L.CRS.EPSG3857,
+      attribution: 'WMS © ahocevar.com'
+    }).setZIndex(500);
 
-    // Population overlay (via Census TIGERweb WMS)
+    // Population overlay (Census TIGERweb)
     const popOverlay = L.tileLayer.wms('https://tigerweb.geo.census.gov/arcgis/services/TIGERweb/tigerWMS_Current/MapServer/WMSServer', {
       layers: 'Census Tracts',
       format: 'image/png',
       transparent: true,
       version: '1.3.0',
-      attribution: '© U.S. Census Bureau',
-      crs: L.CRS.EPSG3857
-    });
+      crs: L.CRS.EPSG3857,
+      attribution: '© U.S. Census Bureau'
+    }).setZIndex(600);
 
     // Initialize map
     const map = L.map('map', {
       center: [39.8, -98.5],
       zoom: 4,
-      layers: [baseLayers.osm, wmsStates] // default basemap OSM + states
+      layers: [baseLayers.osm, wmsStates]
+    });
+
+    // Ensure overlays always render above basemaps
+    map.on('baselayerchange', () => {
+      wmsStates.bringToFront();
+      popOverlay.bringToFront();
     });
 
     // Track current basemap
     let currentBase = baseLayers.osm;
 
-    // Radio button logic for basemap switching
+    // Basemap switcher
     document.querySelectorAll('input[name="basemap"]').forEach(radio => {
       radio.addEventListener('change', event => {
         const selected = baseLayers[event.target.value];
@@ -80,20 +86,31 @@
           map.removeLayer(currentBase);
           map.addLayer(selected);
           currentBase = selected;
+          // Re-bring overlays forward
+          if (map.hasLayer(wmsStates)) wmsStates.bringToFront();
+          if (map.hasLayer(popOverlay)) popOverlay.bringToFront();
         }
       });
     });
 
-    // Toggle for states WMS
+    // WMS toggle
     document.getElementById('wmsToggle').addEventListener('change', evt => {
-      if (evt.target.checked) map.addLayer(wmsStates);
-      else map.removeLayer(wmsStates);
+      if (evt.target.checked) {
+        map.addLayer(wmsStates);
+        wmsStates.bringToFront();
+      } else {
+        map.removeLayer(wmsStates);
+      }
     });
 
-    // Toggle for population overlay
+    // Population overlay toggle
     document.getElementById('popToggle').addEventListener('change', evt => {
-      if (evt.target.checked) map.addLayer(popOverlay);
-      else map.removeLayer(popOverlay);
+      if (evt.target.checked) {
+        map.addLayer(popOverlay);
+        popOverlay.bringToFront();
+      } else {
+        map.removeLayer(popOverlay);
+      }
     });
   </script>
 </body>
