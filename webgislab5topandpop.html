@@ -2,131 +2,104 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>OpenLayers Map with Basemaps and Overlays</title>
+  <title>OpenLayers Multi-Basemap Web App</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol/ol.css">
   <style>
-    html, body { margin: 0; padding: 0; height: 100%; }
-    #map { width: 100%; height: 100%; }
-    #controls {
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+    .map-overlay {
       position: absolute;
       top: 10px;
       left: 10px;
-      background: rgba(255,255,255,0.9);
-      padding: 10px;
-      z-index: 1000;
-      font-family: Arial, sans-serif;
+      background: rgba(255,255,255,0.8);
+      padding: 5px;
+      border-radius: 4px;
+      font-family: sans-serif;
     }
-    label { display: block; margin-bottom: 5px; }
   </style>
 </head>
 <body>
-  <div id="controls">
-    <strong>Basemap:</strong>
-    <label><input type="radio" name="basemap" value="osm" checked> OSM</label>
-    <label><input type="radio" name="basemap" value="esri"> ESRI Imagery</label>
-    <label><input type="radio" name="basemap" value="topo"> USGS Topo</label>
-    <strong>Overlays:</strong>
-    <label><input type="checkbox" id="statesToggle" checked> States WMS</label>
-    <label><input type="checkbox" id="popToggle"> Population Overlay</label>
-  </div>
-  <div id="map"></div>
+<div id="map"></div>
+<div class="map-overlay">
+  <select id="basemap-select">
+    <option value="osm">OSM</option>
+    <option value="esri">ESRI Imagery</option>
+    <option value="topo">Topographic</option>
+  </select>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/ol/ol.js"></script>
-  <script>
-    // Base layers
-    const osmLayer = new ol.layer.Tile({
-      source: new ol.source.OSM(),
-      visible: true,
-      zIndex: 0
-    });
+<script src="https://cdn.jsdelivr.net/npm/ol/ol.js"></script>
+<script>
+  // Base maps
+  const osmLayer = new ol.layer.Tile({
+    source: new ol.source.OSM(),
+    visible: true,
+    title: 'OSM'
+  });
 
-    const esriLayer = new ol.layer.Tile({
-      source: new ol.source.XYZ({
-        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        attributions: 'Tiles © Esri',
-        crossOrigin: 'anonymous'
-      }),
-      visible: false,
-      zIndex: 0
-    });
+  const esriLayer = new ol.layer.Tile({
+    source: new ol.source.XYZ({
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+    }),
+    visible: false,
+    title: 'ESRI'
+  });
 
-    const topoLayer = new ol.layer.Tile({
-      source: new ol.source.XYZ({
-        url: 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
-        attributions: '© USGS'
-      }),
-      visible: false,
-      zIndex: 0
-    });
+  const topoLayer = new ol.layer.Tile({
+    source: new ol.source.XYZ({
+      url: 'https://{a-c}.tile.opentopomap.org/{z}/{x}/{y}.png'
+    }),
+    visible: false,
+    title: 'Topo'
+  });
 
-    // States WMS overlay
-    const statesWMS = new ol.layer.Tile({
-      source: new ol.source.TileWMS({
-        url: 'https://ahocevar.com/geoserver/wms',
-        params: {
-          'LAYERS': 'topp:states',
-          'FORMAT': 'image/png',
-          'TILED': true,
-          'SRS': 'EPSG:3857' // use 3857 to match Web Mercator map projection
-        },
-        serverType: 'geoserver',
-        crossOrigin: 'anonymous'
-      }),
-      visible: true,
-      zIndex: 1
-    });
+  // WMS layer (states)
+  const statesLayer = new ol.layer.Image({
+    source: new ol.source.ImageWMS({
+      url: 'https://ahocevar.com/geoserver/wms',
+      params: {'LAYERS': 'topp:states', 'TILED': true},
+      ratio: 1,
+      serverType: 'geoserver'
+    })
+  });
 
-    // Population overlay (Census WMS)
-    const popOverlay = new ol.layer.Tile({
-      source: new ol.source.TileWMS({
-        url: 'https://tigerweb.geo.census.gov/arcgis/services/TIGERweb/tigerWMS_Current/MapServer/WMSServer',
-        params: {
-          'LAYERS': 'Census Tracts', // population data
-          'FORMAT': 'image/png',
-          'TILED': true
-        },
-        serverType: 'geoserver',
-        crossOrigin: 'anonymous'
-      }),
-      visible: false,
-      zIndex: 2
-    });
+  // Population overlay (example using GeoJSON from naturalearth)
+  const populationLayer = new ol.layer.Vector({
+    source: new ol.source.Vector({
+      url: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson',
+      format: new ol.format.GeoJSON()
+    }),
+    style: new ol.style.Style({
+      fill: new ol.style.Fill({color: 'rgba(255,0,0,0.2)'}),
+      stroke: new ol.style.Stroke({color: 'red', width: 1})
+    })
+  });
 
-    // Map
-    const map = new ol.Map({
-      target: 'map',
-      layers: [osmLayer, esriLayer, topoLayer, statesWMS, popOverlay],
-      view: new ol.View({
-        center: ol.proj.fromLonLat([-98.5795, 39.8283]), // continental US
-        zoom: 4
-      }),
-      controls: ol.control.defaults({ zoom: false })
-    });
+  // Map initialization
+  const map = new ol.Map({
+    target: 'map',
+    layers: [osmLayer, esriLayer, topoLayer, statesLayer, populationLayer],
+    view: new ol.View({
+      center: ol.proj.fromLonLat([0, 20]),
+      zoom: 2
+    })
+  });
 
-    // Add zoom control bottom-left
-    const zoomControl = new ol.control.Zoom();
-    map.addControl(zoomControl);
-    zoomControl.element.style.bottom = '10px';
-    zoomControl.element.style.left = '10px';
-    zoomControl.element.style.top = 'auto';
-    zoomControl.element.style.right = 'auto';
-
-    // Basemap switcher
-    document.querySelectorAll('input[name="basemap"]').forEach(radio => {
-      radio.addEventListener('change', e => {
-        osmLayer.setVisible(e.target.value === 'osm');
-        esriLayer.setVisible(e.target.value === 'esri');
-        topoLayer.setVisible(e.target.value === 'topo');
-      });
-    });
-
-    // Overlay toggles
-    document.getElementById('statesToggle').addEventListener('change', e => {
-      statesWMS.setVisible(e.target.checked);
-    });
-    document.getElementById('popToggle').addEventListener('change', e => {
-      popOverlay.setVisible(e.target.checked);
-    });
-  </script>
+  // Basemap switcher
+  const select = document.getElementById('basemap-select');
+  select.addEventListener('change', function() {
+    const value = this.value;
+    osmLayer.setVisible(value === 'osm');
+    esriLayer.setVisible(value === 'esri');
+    topoLayer.setVisible(value === 'topo');
+  });
+</script>
 </body>
 </html>
