@@ -1,1 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leaflet Map: Basemaps + WMS + Population Overlay</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body { margin:0; padding:0; font-family: Arial,-sans-serif; }
+    #controls { padding:10px; background:#f8f8f8; border-bottom:1px solid #ccc; }
+    label { margin-right:15px; }
+    #map { width:100%; height:90vh; }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <strong>Basemap:</strong>
+    <label><input type="radio" name="basemap" value="osm" checked> OSM</label>
+    <label><input type="radio" name="basemap" value="esri"> ESRI Imagery</label>
+    <label><input type="radio" name="basemap" value="topo"> Topography</label>
+    <strong> | </strong>
+    <label><input type="checkbox" id="wmsToggle" checked> Show States WMS</label>
+    <label><input type="checkbox" id="popToggle"> Show Population Overlay</label>
+  </div>
+  <div id="map"></div>
 
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Basemaps
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    });
+    const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Tiles © Esri'
+    });
+    const topo = L.tileLayer('https://a.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      maxZoom: 17,
+      attribution: '© OpenTopoMap, OSM contributors'
+    });
+
+    // WMS overlay for states (your existing layer)
+    const wmsStates = L.tileLayer.wms('https://ahocevar.com/geoserver/wms', {
+      layers: 'topp:states',
+      format: 'image/png',
+      transparent: true,
+      version: '1.1.1',
+      attribution: 'WMS © ahocevar.com',
+      crs: L.CRS.EPSG3857
