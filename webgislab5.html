@@ -1,1 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenLayers Map Switcher with WMS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol/ol.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    #map {
+      width: 100%;
+      height: 90vh;
+    }
+    #controls {
+      padding: 10px;
+      background: #f8f8f8;
+      border-bottom: 1px solid #ccc;
+    }
+    label {
+      margin-right: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <strong>Basemap:</strong>
+    <label><input type="radio" name="basemap" value="osm" checked> OSM</label>
+    <label><input type="radio" name="basemap" value="esri"> ESRI Imagery</label>
+    <strong> | </strong>
+    <label><input type="checkbox" id="wmsToggle" checked> Show WMS Layer</label>
+  </div>
+  <div id="map"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/ol/dist/ol.js"></script>
+  <script>
+    // Create OSM basemap
+    const osmLayer = new ol.layer.Tile({
+      source: new ol.source.OSM(),
+      visible: true
+    });
+
+    // Create ESRI imagery basemap
+    const esriLayer = new ol.layer.Tile({
+      source: new ol.source.XYZ({
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        attributions: 'Tiles © Esri'
+      }),
+      visible: false
+    });
+
+    // Create WMS overlay layer
+    const wmsLayer = new ol.layer.Tile({
+      source: new ol.source.TileWMS({
+        url: 'https://ahocevar.com/geoserver/wms',
+        params: {
+          'LAYERS': 'topp:states',
+          'TILED': true,
+          'FORMAT': 'image/png'
+        },
+        serverType: 'geoserver'
+      }),
+      visible: true
+    });
+
+    // Initialize map centered on the continental US
+    const map = new ol.Map({
+      target: 'map',
+      layers: [osmLayer, esriLayer, wmsLayer],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([-98.5, 39.8]), // Center of continental US
+        zoom: 4
+      })
+    });
+
+    // Basemap switcher
+    const basemapRadios = document.querySelectorAll('input[name="basemap"]');
+    basemapRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        osmLayer.setVisible(radio.value === 'osm');
+        esriLayer.setVisible(radio.value === 'esri');
+      });
+    });
+
+    // WMS layer toggle
+    const wmsToggle = document.getElementById('wmsToggle');
+    wmsToggle.addEventListener('change', () => {
+      wmsLayer.setVisible(wmsToggle.checked);
+    });
+  </script>
+</body>
+</html>
