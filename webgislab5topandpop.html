@@ -6,7 +6,7 @@
   <title>Leaflet Map: Basemaps + WMS + Population Overlay</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    body { margin:0; padding:0; font-family: Arial,-sans-serif; }
+    body { margin:0; padding:0; font-family: Arial, sans-serif; }
     #controls { padding:10px; background:#f8f8f8; border-bottom:1px solid #ccc; }
     label { margin-right:15px; }
     #map { width:100%; height:90vh; }
@@ -26,19 +26,21 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // Basemaps
-    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap contributors'
-    });
-    const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 19,
-      attribution: 'Tiles © Esri'
-    });
-    const topo = L.tileLayer('https://a.tile.opentopomap.org/{z}/{x}/{y}.png', {
-      maxZoom: 17,
-      attribution: '© OpenTopoMap, OSM contributors'
-    });
+    // Define basemaps
+    const baseLayers = {
+      osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+      }),
+      esri: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19,
+        attribution: 'Tiles © Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+      }),
+      topo: L.tileLayer('https://a.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        maxZoom: 17,
+        attribution: '© OpenTopoMap, OSM contributors'
+      })
+    };
 
     // WMS overlay for states (your existing layer)
     const wmsStates = L.tileLayer.wms('https://ahocevar.com/geoserver/wms', {
@@ -48,3 +50,51 @@
       version: '1.1.1',
       attribution: 'WMS © ahocevar.com',
       crs: L.CRS.EPSG3857
+    });
+
+    // Population overlay (via Census TIGERweb WMS)
+    const popOverlay = L.tileLayer.wms('https://tigerweb.geo.census.gov/arcgis/services/TIGERweb/tigerWMS_Current/MapServer/WMSServer', {
+      layers: 'Census Tracts',
+      format: 'image/png',
+      transparent: true,
+      version: '1.3.0',
+      attribution: '© U.S. Census Bureau',
+      crs: L.CRS.EPSG3857
+    });
+
+    // Initialize map
+    const map = L.map('map', {
+      center: [39.8, -98.5],
+      zoom: 4,
+      layers: [baseLayers.osm, wmsStates] // default basemap OSM + states
+    });
+
+    // Track current basemap
+    let currentBase = baseLayers.osm;
+
+    // Radio button logic for basemap switching
+    document.querySelectorAll('input[name="basemap"]').forEach(radio => {
+      radio.addEventListener('change', event => {
+        const selected = baseLayers[event.target.value];
+        if (selected && selected !== currentBase) {
+          map.removeLayer(currentBase);
+          map.addLayer(selected);
+          currentBase = selected;
+        }
+      });
+    });
+
+    // Toggle for states WMS
+    document.getElementById('wmsToggle').addEventListener('change', evt => {
+      if (evt.target.checked) map.addLayer(wmsStates);
+      else map.removeLayer(wmsStates);
+    });
+
+    // Toggle for population overlay
+    document.getElementById('popToggle').addEventListener('change', evt => {
+      if (evt.target.checked) map.addLayer(popOverlay);
+      else map.removeLayer(popOverlay);
+    });
+  </script>
+</body>
+</html>
