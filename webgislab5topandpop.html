@@ -1,86 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Leaflet Map: USGS Topo with Population Overlay</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <meta charset="UTF-8">
+  <title>OpenLayers Map with Basemaps & Population Overlay</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol/ol.css">
   <style>
-    body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    #map { width: 100%; height: 100vh; }
-    #controls { position: absolute; top: 10px; left: 10px; background: white; padding: 10px; z-index: 1000; }
+    html, body { margin:0; padding:0; height:100%; }
+    #map { width:100%; height:100%; }
+    #controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255,255,255,0.9);
+      padding: 10px;
+      z-index: 1000;
+      font-family: Arial, sans-serif;
+    }
+    label { display:block; margin-bottom:5px; }
   </style>
 </head>
 <body>
   <div id="controls">
-    <label><input type="radio" name="basemap" value="osm" checked> OpenStreetMap</label>
+    <strong>Basemap:</strong>
+    <label><input type="radio" name="basemap" value="osm" checked> OSM</label>
     <label><input type="radio" name="basemap" value="esri"> ESRI Imagery</label>
     <label><input type="radio" name="basemap" value="topo"> USGS Topo</label>
-    <br>
-    <label><input type="checkbox" id="wmsToggle" checked> Show USGS WMS Layer</label>
-    <label><input type="checkbox" id="popToggle"> Show Population Overlay</label>
+    <strong>Overlays:</strong>
+    <label><input type="checkbox" id="wmsToggle" checked> USGS WMS</label>
+    <label><input type="checkbox" id="popToggle"> Population Overlay</label>
   </div>
-  <div id="map"></div>
+  <div id="map" class="map"></div>
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ol/ol.js"></script>
   <script>
-    const map = L.map('map', {
-      center: [39.8283, -98.5795], // Centered on the continental US
-      zoom: 4
+    // Base layers
+    const osmLayer = new ol.layer.Tile({
+      source: new ol.source.OSM(),
+      visible: true,
+      title: 'osm'
     });
 
-    const baseLayers = {
-      osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    const esriLayer = new ol.layer.Tile({
+      source: new ol.source.XYZ({
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        attributions: 'Tiles © Esri'
       }),
-      esri: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: '&copy; <a href="https://www.esri.com">ESRI</a>'
+      visible: false,
+      title: 'esri'
+    });
+
+    const usgsTopoLayer = new ol.layer.Tile({
+      source: new ol.source.XYZ({
+        url: 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
+        attributions: '© USGS'
       }),
-      topo: L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}', {
-        attribution: '&copy; <a href="https://www.usgs.gov">USGS</a>'
+      visible: false,
+      title: 'topo'
+    });
+
+    // WMS overlays
+    const usgsWMS = new ol.layer.Tile({
+      source: new ol.source.TileWMS({
+        url: 'https://basemap.nationalmap.gov/arcgis/services/USGSTopo/MapServer/WMSServer',
+        params: { 'LAYERS': '0', 'TILED': true, 'FORMAT': 'image/png' },
+        serverType: 'geoserver',
+        crossOrigin: 'anonymous'
+      }),
+      visible: true
+    });
+
+    const popOverlay = new ol.layer.Tile({
+      source: new ol.source.TileWMS({
+        url: 'https://tigerweb.geo.census.gov/arcgis/services/TIGERweb/tigerWMS_Current/MapServer/WMSServer',
+        params: { 'LAYERS': 'Census Tracts', 'TILED': true, 'FORMAT': 'image/png' },
+        serverType: 'geoserver',
+        crossOrigin: 'anonymous'
+      }),
+      visible: false
+    });
+
+    // Map
+    const map = new ol.Map({
+      target: 'map',
+      layers: [osmLayer, esriLayer, usgsTopoLayer, usgsWMS, popOverlay],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([-98.5795, 39.8283]), // Continental US center
+        zoom: 4
       })
-    };
-
-    const wmsLayer = L.tileLayer.wms('https://basemap.nationalmap.gov/arcgis/services/USGSTopo/MapServer/WMSServer', {
-      layers: '0', // USGS Topo layer
-      format: 'image/png',
-      transparent: true,
-      attribution: '&copy; <a href="https://www.usgs.gov">USGS</a>'
     });
 
-    const popOverlay = L.tileLayer.wms('https://tigerweb.geo.census.gov/arcgis/services/TIGERweb/tigerWMS_Current/MapServer/WMSServer', {
-      layers: 'Census Tracts',  // Ensure this layer exists
-      format: 'image/png',
-      transparent: true,
-      attribution: '&copy; <a href="https://www.census.gov">U.S. Census Bureau</a>'
-    });
-
-    baseLayers.osm.addTo(map);
-
+    // Basemap switcher
     document.querySelectorAll('input[name="basemap"]').forEach(radio => {
-      radio.addEventListener('change', (e) => {
-        const selectedLayer = baseLayers[e.target.value];
-        map.removeLayer(baseLayers.osm);
-        map.removeLayer(baseLayers.esri);
-        map.removeLayer(baseLayers.topo);
-        selectedLayer.addTo(map);
+      radio.addEventListener('change', e => {
+        osmLayer.setVisible(e.target.value === 'osm');
+        esriLayer.setVisible(e.target.value === 'esri');
+        usgsTopoLayer.setVisible(e.target.value === 'topo');
       });
     });
 
-    document.getElementById('wmsToggle').addEventListener('change', (e) => {
-      if (e.target.checked) {
-        wmsLayer.addTo(map);
-      } else {
-        wmsLayer.removeFrom(map);
-      }
+    // Overlay toggles
+    document.getElementById('wmsToggle').addEventListener('change', e => {
+      usgsWMS.setVisible(e.target.checked);
     });
 
-    document.getElementById('popToggle').addEventListener('change', (e) => {
-      if (e.target.checked) {
-        popOverlay.addTo(map);
-      } else {
-        popOverlay.removeFrom(map);
-      }
+    document.getElementById('popToggle').addEventListener('change', e => {
+      popOverlay.setVisible(e.target.checked);
     });
   </script>
 </body>
