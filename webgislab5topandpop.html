@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OpenLayers Basemap Switcher with WMS and Overlays</title>
+  <title>OpenLayers Basemap Switcher with GEBCO WMS and Overlays</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol/ol.css">
   <script src="https://cdn.jsdelivr.net/npm/ol/ol.js"></script>
   <style>
@@ -34,12 +34,12 @@
 <body>
   <div id="controls">
     <strong>Basemap:</strong><br>
-    <label><input type="radio" name="basemap" value="osm" checked> OSM</label><br>
+    <label><input type="radio" name="basemap" value="osm"> OSM</label><br>
     <label><input type="radio" name="basemap" value="esri"> ESRI Imagery</label><br>
-    <label><input type="radio" name="basemap" value="topo"> Topography</label><br><br>
+    <label><input type="radio" name="basemap" value="topo" checked> Topography</label><br><br>
 
     <strong>Overlays:</strong><br>
-    <label><input type="checkbox" id="wms-toggle" checked> WMS Layer (States)</label><br>
+    <label><input type="checkbox" id="wms-toggle" checked> GEBCO WMS (Bathymetry)</label><br>
     <label><input type="checkbox" id="pop-toggle"> Population Overlay</label>
   </div>
 
@@ -49,7 +49,7 @@
     // Define basemap layers
     const osmLayer = new ol.layer.Tile({
       source: new ol.source.OSM(),
-      visible: true
+      visible: false
     });
 
     const esriLayer = new ol.layer.Tile({
@@ -63,24 +63,24 @@
       source: new ol.source.XYZ({
         url: 'https://{a-c}.tile.opentopomap.org/{z}/{x}/{y}.png'
       }),
-      visible: false
+      visible: true
     });
 
-    // Define overlays
+    // Define GEBCO WMS layer
     const wmsLayer = new ol.layer.Tile({
       source: new ol.source.TileWMS({
-        url: 'https://ahocevar.com/geoserver/wms',
+        url: 'https://wms.gebco.net/mapserv?',
         params: {
-          'LAYERS': 'topp:states',
+          'LAYERS': 'GEBCO_2023_Grid',
           'TILED': true,
           'FORMAT': 'image/png'
         },
-        serverType: 'geoserver',
         crossOrigin: 'anonymous'
       }),
       visible: true
     });
 
+    // Population overlay
     const popOverlay = new ol.layer.Tile({
       source: new ol.source.XYZ({
         url: 'https://tiles.arcgis.com/tiles/P3ePLMYs2RVChkJx/arcgis/rest/services/World_Population_Density_2020/MapServer/tile/{z}/{y}/{x}'
