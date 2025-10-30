@@ -34,9 +34,9 @@
 <body>
   <div id="controls">
     <strong>Basemap:</strong><br>
-    <label><input type="radio" name="basemap" value="osm"> OSM</label><br>
+    <label><input type="radio" name="basemap" value="osm" checked> OSM</label><br>
     <label><input type="radio" name="basemap" value="esri"> ESRI Imagery</label><br>
-    <label><input type="radio" name="basemap" value="topo" checked> Topography</label><br><br>
+    <label><input type="radio" name="basemap" value="topo"> Topography</label><br><br>
 
     <strong>Overlays:</strong><br>
     <label><input type="checkbox" id="wms-toggle" checked> GEBCO WMS (Bathymetry)</label><br>
@@ -46,62 +46,76 @@
   <div id="map"></div>
 
   <script>
-    // Define basemap layers
+    // Base layers
     const osmLayer = new ol.layer.Tile({
+      title: 'OSM',
       source: new ol.source.OSM(),
-      visible: false
+      visible: true,
+      zIndex: 0
     });
 
     const esriLayer = new ol.layer.Tile({
+      title: 'ESRI Imagery',
       source: new ol.source.XYZ({
-        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        attributions: 'Tiles © Esri'
       }),
-      visible: false
+      visible: false,
+      zIndex: 0
     });
 
     const topoLayer = new ol.layer.Tile({
+      title: 'Topography',
       source: new ol.source.XYZ({
-        url: 'https://{a-c}.tile.opentopomap.org/{z}/{x}/{y}.png'
+        url: 'https://{a-c}.tile.opentopomap.org/{z}/{x}/{y}.png',
+        attributions: 'Map data © OpenTopoMap'
       }),
-      visible: true
+      visible: false,
+      zIndex: 0
     });
 
-    // Define GEBCO WMS layer
+    // GEBCO WMS overlay
     const wmsLayer = new ol.layer.Tile({
+      title: 'GEBCO Bathymetry',
       source: new ol.source.TileWMS({
         url: 'https://wms.gebco.net/mapserv?',
         params: {
           'LAYERS': 'GEBCO_2023_Grid',
-          'TILED': true,
-          'FORMAT': 'image/png'
+          'FORMAT': 'image/png',
+          'TRANSPARENT': true
         },
         crossOrigin: 'anonymous'
       }),
-      visible: true
+      opacity: 0.7,
+      visible: true,
+      zIndex: 1
     });
 
     // Population overlay
     const popOverlay = new ol.layer.Tile({
+      title: 'Population Density',
       source: new ol.source.XYZ({
-        url: 'https://tiles.arcgis.com/tiles/P3ePLMYs2RVChkJx/arcgis/rest/services/World_Population_Density_2020/MapServer/tile/{z}/{y}/{x}'
+        url: 'https://tiles.arcgis.com/tiles/P3ePLMYs2RVChkJx/arcgis/rest/services/World_Population_Density_2020/MapServer/tile/{z}/{y}/{x}',
+        attributions: 'Population © Esri',
       }),
       opacity: 0.6,
-      visible: false
+      visible: false,
+      zIndex: 2
     });
 
-    // Create map
+    // Map setup
     const map = new ol.Map({
       target: 'map',
       layers: [osmLayer, esriLayer, topoLayer, wmsLayer, popOverlay],
       view: new ol.View({
-        center: ol.proj.fromLonLat([-98.583, 39.833]), // continental US
+        center: ol.proj.fromLonLat([-98.583, 39.833]), // Continental US
         zoom: 4
       })
     });
 
-    // Basemap switcher
+    // Basemap switcher logic
     document.querySelectorAll('input[name="basemap"]').forEach(radio => {
-      radio.addEventListener('change', (e) => {
+      radio.addEventListener('change', e => {
         const value = e.target.value;
         osmLayer.setVisible(value === 'osm');
         esriLayer.setVisible(value === 'esri');
@@ -109,13 +123,12 @@
       });
     });
 
-    // WMS toggle
-    document.getElementById('wms-toggle').addEventListener('change', (e) => {
+    // Overlay toggles
+    document.getElementById('wms-toggle').addEventListener('change', e => {
       wmsLayer.setVisible(e.target.checked);
     });
 
-    // Population overlay toggle
-    document.getElementById('pop-toggle').addEventListener('change', (e) => {
+    document.getElementById('pop-toggle').addEventListener('change', e => {
       popOverlay.setVisible(e.target.checked);
     });
   </script>
