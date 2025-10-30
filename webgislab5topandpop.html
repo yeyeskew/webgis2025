@@ -2,104 +2,122 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>OpenLayers Multi-Basemap Web App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenLayers Basemap Switcher with WMS and Overlays</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol/ol.css">
+  <script src="https://cdn.jsdelivr.net/npm/ol/ol.js"></script>
   <style>
     html, body {
       margin: 0;
       padding: 0;
+      width: 100%;
       height: 100%;
     }
     #map {
       width: 100%;
-      height: 100%;
+      height: 90vh;
     }
-    .map-overlay {
+    #controls {
+      padding: 10px;
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
       position: absolute;
       top: 10px;
       left: 10px;
-      background: rgba(255,255,255,0.8);
-      padding: 5px;
-      border-radius: 4px;
+      border-radius: 8px;
+      z-index: 1000;
       font-family: sans-serif;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
-<div id="map"></div>
-<div class="map-overlay">
-  <select id="basemap-select">
-    <option value="osm">OSM</option>
-    <option value="esri">ESRI Imagery</option>
-    <option value="topo">Topographic</option>
-  </select>
-</div>
+  <div id="controls">
+    <strong>Basemap:</strong><br>
+    <label><input type="radio" name="basemap" value="osm" checked> OSM</label><br>
+    <label><input type="radio" name="basemap" value="esri"> ESRI Imagery</label><br>
+    <label><input type="radio" name="basemap" value="topo"> Topography</label><br><br>
 
-<script src="https://cdn.jsdelivr.net/npm/ol/ol.js"></script>
-<script>
-  // Base maps
-  const osmLayer = new ol.layer.Tile({
-    source: new ol.source.OSM(),
-    visible: true,
-    title: 'OSM'
-  });
+    <strong>Overlays:</strong><br>
+    <label><input type="checkbox" id="wms-toggle" checked> WMS Layer (States)</label><br>
+    <label><input type="checkbox" id="pop-toggle"> Population Overlay</label>
+  </div>
 
-  const esriLayer = new ol.layer.Tile({
-    source: new ol.source.XYZ({
-      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-    }),
-    visible: false,
-    title: 'ESRI'
-  });
+  <div id="map"></div>
 
-  const topoLayer = new ol.layer.Tile({
-    source: new ol.source.XYZ({
-      url: 'https://{a-c}.tile.opentopomap.org/{z}/{x}/{y}.png'
-    }),
-    visible: false,
-    title: 'Topo'
-  });
+  <script>
+    // Define basemap layers
+    const osmLayer = new ol.layer.Tile({
+      source: new ol.source.OSM(),
+      visible: true
+    });
 
-  // WMS layer (states)
-  const statesLayer = new ol.layer.Image({
-    source: new ol.source.ImageWMS({
-      url: 'https://ahocevar.com/geoserver/wms',
-      params: {'LAYERS': 'topp:states', 'TILED': true},
-      ratio: 1,
-      serverType: 'geoserver'
-    })
-  });
+    const esriLayer = new ol.layer.Tile({
+      source: new ol.source.XYZ({
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+      }),
+      visible: false
+    });
 
-  // Population overlay (example using GeoJSON from naturalearth)
-  const populationLayer = new ol.layer.Vector({
-    source: new ol.source.Vector({
-      url: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson',
-      format: new ol.format.GeoJSON()
-    }),
-    style: new ol.style.Style({
-      fill: new ol.style.Fill({color: 'rgba(255,0,0,0.2)'}),
-      stroke: new ol.style.Stroke({color: 'red', width: 1})
-    })
-  });
+    const topoLayer = new ol.layer.Tile({
+      source: new ol.source.XYZ({
+        url: 'https://{a-c}.tile.opentopomap.org/{z}/{x}/{y}.png'
+      }),
+      visible: false
+    });
 
-  // Map initialization
-  const map = new ol.Map({
-    target: 'map',
-    layers: [osmLayer, esriLayer, topoLayer, statesLayer, populationLayer],
-    view: new ol.View({
-      center: ol.proj.fromLonLat([0, 20]),
-      zoom: 2
-    })
-  });
+    // Define overlays
+    const wmsLayer = new ol.layer.Tile({
+      source: new ol.source.TileWMS({
+        url: 'https://ahocevar.com/geoserver/wms',
+        params: {
+          'LAYERS': 'topp:states',
+          'TILED': true,
+          'FORMAT': 'image/png'
+        },
+        serverType: 'geoserver',
+        crossOrigin: 'anonymous'
+      }),
+      visible: true
+    });
 
-  // Basemap switcher
-  const select = document.getElementById('basemap-select');
-  select.addEventListener('change', function() {
-    const value = this.value;
-    osmLayer.setVisible(value === 'osm');
-    esriLayer.setVisible(value === 'esri');
-    topoLayer.setVisible(value === 'topo');
-  });
-</script>
+    const popOverlay = new ol.layer.Tile({
+      source: new ol.source.XYZ({
+        url: 'https://tiles.arcgis.com/tiles/P3ePLMYs2RVChkJx/arcgis/rest/services/World_Population_Density_2020/MapServer/tile/{z}/{y}/{x}'
+      }),
+      opacity: 0.6,
+      visible: false
+    });
+
+    // Create map
+    const map = new ol.Map({
+      target: 'map',
+      layers: [osmLayer, esriLayer, topoLayer, wmsLayer, popOverlay],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([-98.583, 39.833]), // continental US
+        zoom: 4
+      })
+    });
+
+    // Basemap switcher
+    document.querySelectorAll('input[name="basemap"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        const value = e.target.value;
+        osmLayer.setVisible(value === 'osm');
+        esriLayer.setVisible(value === 'esri');
+        topoLayer.setVisible(value === 'topo');
+      });
+    });
+
+    // WMS toggle
+    document.getElementById('wms-toggle').addEventListener('change', (e) => {
+      wmsLayer.setVisible(e.target.checked);
+    });
+
+    // Population overlay toggle
+    document.getElementById('pop-toggle').addEventListener('change', (e) => {
+      popOverlay.setVisible(e.target.checked);
+    });
+  </script>
 </body>
 </html>
