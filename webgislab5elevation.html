@@ -1,92 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>OpenLayers Map Switcher with Elevation</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol/ol.css">
-<style>
-  #map {
-    width: 100%;
-    height: 500px;
-  }
-  .controls {
-    margin: 10px;
-  }
-</style>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leaflet Map — OSM + ESRI + WMS + Elevation</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+      crossorigin=""
+    />
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, sans-serif;
+      }
+      #map {
+        width: 100%;
+        height: 90vh;
+      }
+      .controls {
+        background: white;
+        padding: 10px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        margin: 10px;
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 1000;
+      }
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 14px;
+      }
+      footer {
+        font-size: 12px;
+        text-align: center;
+        padding: 8px;
+        color: #666;
+        border-top: 1px solid #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="controls">
+      <h3 style="margin-top:0;">Map Controls</h3>
+      <label><input type="radio" name="basemap" value="osm" checked /> OSM (OpenStreetMap)</label>
+      <label><input type="radio" name="basemap" value="esri" /> ESRI World Imagery</label>
 
-<div class="controls">
-  <label><input type="radio" name="basemap" value="osm" checked> OSM</label>
-  <label><input type="radio" name="basemap" value="esri"> ESRI Imagery</label>
-  <label><input type="checkbox" id="wmsToggle"> Show WMS Layer</label>
-  <label><input type="checkbox" id="elevationToggle"> Show Elevation Layer</label>
-</div>
+      <hr />
+      <label><input type="checkbox" id="wmsToggle" checked /> WMS: topp:states</label>
+      <label><input type="checkbox" id="elevToggle" /> Elevation (OpenTopoMap)</label>
+    </div>
 
-<div id="map"></div>
+    <div id="map"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/ol/ol.js"></script>
-<script>
-  // Basemap layers
-  const osmLayer = new ol.layer.Tile({
-    source: new ol.source.OSM(),
-    visible: true
-  });
+    <footer>
+      Built with Leaflet. Base layers: OSM, ESRI Imagery, OpenTopoMap. WMS from https://ahocevar.com/geoserver/wms.
+    </footer>
 
-  const esriLayer = new ol.layer.Tile({
-    source: new ol.source.XYZ({
-      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-    }),
-    visible: false
-  });
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha512-o9N1jz9hYB1h4B7hQYy+f+AzXjV7tM0eA/4L7W6Kz0i95iDs1v7gZJj5D6/XlmZ0c+5C1kGJQGmU5lQ0p+NQ=="
+      crossorigin=""
+    ></script>
+    <script>
+      // Initialize map
+      const map = L.map('map').setView([39.8283, -98.5795], 4);
 
-  // WMS layer
-  const wmsLayer = new ol.layer.Image({
-    source: new ol.source.ImageWMS({
-      url: 'https://ahocevar.com/geoserver/wms',
-      params: {'LAYERS': 'topp:states', 'FORMAT': 'image/png'},
-      ratio: 1,
-      serverType: 'geoserver'
-    }),
-    visible: false
-  });
+      // Base layers
+      const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
 
-  // Elevation layer (terrain tiles)
-  const elevationLayer = new ol.layer.Tile({
-    source: new ol.source.XYZ({
-      url: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'
-    }),
-    visible: false
-  });
+      const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19,
+        attribution: 'Tiles © Esri'
+      });
 
-  // Map
-  const map = new ol.Map({
-    target: 'map',
-    layers: [osmLayer, esriLayer, wmsLayer, elevationLayer],
-    view: new ol.View({
-      center: ol.proj.fromLonLat([-98.5795, 39.8283]), // center on continental US
-      zoom: 4
-    })
-  });
+      // WMS layer
+      const wmsLayer = L.tileLayer.wms('https://ahocevar.com/geoserver/wms', {
+        layers: 'topp:states',
+        format: 'image/png',
+        transparent: true,
+        version: '1.1.1',
+        attribution: 'GeoServer WMS'
+      }).addTo(map);
 
-  // Basemap switcher
-  document.querySelectorAll('input[name="basemap"]').forEach(radio => {
-    radio.addEventListener('change', (event) => {
-      osmLayer.setVisible(event.target.value === 'osm');
-      esriLayer.setVisible(event.target.value === 'esri');
-    });
-  });
+      // Elevation layer (OpenTopoMap)
+      const elevationLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        maxZoom: 17,
+        attribution: '© OpenTopoMap contributors'
+      });
 
-  // WMS toggle
-  document.getElementById('wmsToggle').addEventListener('change', (event) => {
-    wmsLayer.setVisible(event.target.checked);
-  });
+      // Control events
+      document.querySelectorAll('input[name="basemap"]').forEach(el => {
+        el.addEventListener('change', e => {
+          if (e.target.value === 'osm') {
+            map.addLayer(osm);
+            map.removeLayer(esri);
+          } else {
+            map.addLayer(esri);
+            map.removeLayer(osm);
+          }
+        });
+      });
 
-  // Elevation toggle
-  document.getElementById('elevationToggle').addEventListener('change', (event) => {
-    elevationLayer.setVisible(event.target.checked);
-  });
-</script>
+      document.getElementById('wmsToggle').addEventListener('change', e => {
+        if (e.target.checked) map.addLayer(wmsLayer);
+        else map.removeLayer(wmsLayer);
+      });
 
-</body>
+      document.getElementById('elevToggle').addEventListener('change', e => {
+        if (e.target.checked) map.addLayer(elevationLayer);
+        else map.removeLayer(elevationLayer);
+      });
+    </script>
+  </body>
 </html>
