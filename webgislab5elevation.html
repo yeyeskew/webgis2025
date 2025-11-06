@@ -1,123 +1,117 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Leaflet Map — OSM + ESRI + WMS + Elevation</title>
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
-      crossorigin=""
-    />
-    <style>
-      body {
-        margin: 0;
-        font-family: system-ui, sans-serif;
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leaflet — OSM, ESRI Imagery, WMS (topp:states) + Elevation Overlay</title>
+  <!-- Leaflet CSS (no integrity attribute to avoid blocking if hash mismatches) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html,body,#map { height: 100%; margin: 0; padding: 0; }
+    .controls { position: absolute; top: 10px; right: 10px; z-index: 1000; background: rgba(255,255,255,0.9); padding: 8px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+    .opacity-label { font-size: 13px; margin-bottom: 6px; }
+    .attribution-small { font-size: 11px; color: #333; }
+    .error { position: absolute; left: 10px; bottom: 10px; z-index: 1001; background: rgba(255,50,50,0.95); color: white; padding: 8px; border-radius: 6px; display: none; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="controls">
+    <div class="opacity-label">Elevation overlay opacity: <span id="opacity-value">0.60</span></div>
+    <input id="opacity-range" type="range" min="0" max="1" step="0.01" value="0.6" />
+  </div>
+
+  <div id="error-box" class="error">Leaflet failed to load — map cannot be initialized. Check your network or CDN settings (see console).</div>
+
+  <!-- Leaflet JS loaded before our initialization script. Avoid integrity attribute to prevent blocking if hashes don't match. -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    // Ensure code runs after the browser has parsed the DOM and after Leaflet script has been executed.
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check that Leaflet (L) is available
+      if (typeof L === 'undefined') {
+        console.error('Leaflet object L is not defined. The Leaflet script failed to load.');
+        const eb = document.getElementById('error-box');
+        if (eb) eb.style.display = 'block';
+        return;
       }
-      #map {
-        width: 100%;
-        height: 90vh;
-      }
-      .controls {
-        background: white;
-        padding: 10px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-        border-radius: 8px;
-        margin: 10px;
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        z-index: 1000;
-      }
-      label {
-        display: block;
-        margin-bottom: 6px;
-        font-size: 14px;
-      }
-      footer {
-        font-size: 12px;
-        text-align: center;
-        padding: 8px;
-        color: #666;
-        border-top: 1px solid #ddd;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="controls">
-      <h3 style="margin-top:0;">Map Controls</h3>
-      <label><input type="radio" name="basemap" value="osm" checked /> OSM (OpenStreetMap)</label>
-      <label><input type="radio" name="basemap" value="esri" /> ESRI World Imagery</label>
 
-      <hr />
-      <label><input type="checkbox" id="wmsToggle" checked /> WMS: topp:states</label>
-      <label><input type="checkbox" id="elevToggle" /> Elevation (OpenTopoMap)</label>
-    </div>
-
-    <div id="map"></div>
-
-    <footer>
-      Built with Leaflet. Base layers: OSM, ESRI Imagery, OpenTopoMap. WMS from https://ahocevar.com/geoserver/wms.
-    </footer>
-
-    <script
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha512-o9N1jz9hYB1h4B7hQYy+f+AzXjV7tM0eA/4L7W6Kz0i95iDs1v7gZJj5D6/XlmZ0c+5C1kGJQGmU5lQ0p+NQ=="
-      crossorigin=""
-    ></script>
-    <script>
-      // Initialize map
-      const map = L.map('map').setView([39.8283, -98.5795], 4);
-
-      // Base layers
-      const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(map);
-
-      const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 19,
-        attribution: 'Tiles © Esri'
-      });
-
-      // WMS layer
-      const wmsLayer = L.tileLayer.wms('https://ahocevar.com/geoserver/wms', {
-        layers: 'topp:states',
-        format: 'image/png',
-        transparent: true,
-        version: '1.1.1',
-        attribution: 'GeoServer WMS'
-      }).addTo(map);
-
-      // Elevation layer (OpenTopoMap)
-      const elevationLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-        maxZoom: 17,
-        attribution: '© OpenTopoMap contributors'
-      });
-
-      // Control events
-      document.querySelectorAll('input[name="basemap"]').forEach(el => {
-        el.addEventListener('change', e => {
-          if (e.target.value === 'osm') {
-            map.addLayer(osm);
-            map.removeLayer(esri);
-          } else {
-            map.addLayer(esri);
-            map.removeLayer(osm);
-          }
+      try {
+        // Initialize map
+        const map = L.map('map', {
+          center: [37.8, -96.0],
+          zoom: 4
         });
-      });
 
-      document.getElementById('wmsToggle').addEventListener('change', e => {
-        if (e.target.checked) map.addLayer(wmsLayer);
-        else map.removeLayer(wmsLayer);
-      });
+        // --- Base maps ---
+        const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '© OpenStreetMap contributors'
+        });
 
-      document.getElementById('elevToggle').addEventListener('change', e => {
-        if (e.target.checked) map.addLayer(elevationLayer);
-        else map.removeLayer(elevationLayer);
-      });
-    </script>
-  </body>
+        const esriImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+          maxZoom: 19,
+          attribution: 'Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+        });
+
+        osm.addTo(map); // start with OSM
+
+        const baseMaps = {
+          "OpenStreetMap": osm,
+          "ESRI WorldImagery": esriImagery
+        };
+
+        // --- WMS layer (topp:states) ---
+        const wmsUrl = 'https://ahocevar.com/geoserver/wms';
+        const statesWMS = L.tileLayer.wms(wmsUrl, {
+          layers: 'topp:states',
+          format: 'image/png',
+          transparent: true,
+          version: '1.1.1',
+          attribution: 'topp:states — GeoServer demo'
+        }).addTo(map);
+
+        // --- Elevation overlay (topography/elevation tiles) ---
+        // OpenTopoMap used as an elevation / topographic overlay. We'll set it as an overlay with adjustable opacity.
+        const elevationOverlay = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+          maxZoom: 17,
+          attribution: '© OpenTopoMap (CC-BY-SA)'
+        }).addTo(map);
+
+        // Set default opacity
+        elevationOverlay.setOpacity(0.6);
+
+        // --- Layer control ---
+        const overlays = {
+          "US States (WMS: topp:states)": statesWMS,
+          "Elevation / Topography": elevationOverlay
+        };
+
+        L.control.layers(baseMaps, overlays, { collapsed: false }).addTo(map);
+
+        // --- Opacity control for elevation overlay ---
+        const opacityRange = document.getElementById('opacity-range');
+        const opacityValue = document.getElementById('opacity-value');
+
+        if (opacityRange && opacityValue) {
+          opacityRange.addEventListener('input', function() {
+            const v = parseFloat(this.value);
+            elevationOverlay.setOpacity(v);
+            opacityValue.textContent = v.toFixed(2);
+          });
+        }
+
+        // --- Resize handling ---
+        window.addEventListener('resize', function(){ map.invalidateSize(); });
+
+      } catch (err) {
+        console.error('Error initializing map:', err);
+        const eb = document.getElementById('error-box');
+        if (eb) eb.style.display = 'block';
+      }
+    });
+  </script>
+</body>
 </html>
