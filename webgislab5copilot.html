@@ -2,26 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>OpenLayers Map with Canvas</title>
+  <title>OpenLayers Map with OSM, ESRI, WMS</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@latest/ol.css">
   <style>
-    html, body, #map {
+    html, body {
       margin: 0;
       padding: 0;
+      height: 100%;
+    }
+    #map {
       width: 100%;
       height: 100%;
     }
   </style>
 </head>
 <body>
-  <canvas id="map" width="800" height="400"></canvas>
+  <!-- ✅ Use a div instead of canvas for OpenLayers -->
+  <div id="map"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/ol@latest/ol.js"></script>
   <script>
+    // OSM basemap
     const osmLayer = new ol.layer.Tile({
       source: new ol.source.OSM(),
       visible: true
     });
 
+    // ESRI World Imagery basemap
     const esriLayer = new ol.layer.Tile({
       source: new ol.source.XYZ({
         url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
@@ -29,6 +36,7 @@
       visible: false
     });
 
+    // WMS layer
     const wmsLayer = new ol.layer.Image({
       source: new ol.source.ImageWMS({
         url: 'https://ahocevar.com/geoserver/wms',
@@ -43,8 +51,9 @@
       })
     });
 
+    // Map initialization
     const map = new ol.Map({
-      target: document.getElementById('map'),
+      target: 'map',
       layers: [osmLayer, esriLayer, wmsLayer],
       view: new ol.View({
         center: ol.proj.fromLonLat([-95, 37]),
@@ -52,7 +61,7 @@
       })
     });
 
-    // Toggle layers (optional)
+    // Optional: Toggle basemaps with keyboard
     document.addEventListener('keydown', (e) => {
       if (e.key === '1') {
         osmLayer.setVisible(true);
@@ -65,4 +74,3 @@
   </script>
 </body>
 </html>
-
