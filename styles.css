@@ -65,7 +65,7 @@ footer {
 
 
 .top-nav {
-  background-color: #00382A; 
+  background-color: #732b7d; 
   padding: 15px 30px;
   display: flex;
   justify-content: flex-end;
@@ -88,6 +88,7 @@ footer {
 .nav-btn:hover {
   opacity: 0.6;
 }
+
 
 
 
