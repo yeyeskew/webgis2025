@@ -14,7 +14,7 @@ h1 {
 h2 {
 	 font-family: Arial, sans-serif;
 		font-size: 18px;
-		text-align: center;
+		text-align: left;
 	}
 
 h3 {
@@ -88,6 +88,7 @@ footer {
 .nav-btn:hover {
   opacity: 0.6;
 }
+
 
 
 
