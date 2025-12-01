@@ -73,7 +73,7 @@ footer {
 
 .nav-links {
   display: center;
-  gap: 100px;
+  gap: 200px;
 }
 
 .nav-btn {
@@ -96,6 +96,7 @@ footer {
 .p-pad {
 	paddding-left: 30px;
 }
+
 
 
 
