@@ -43,16 +43,41 @@ footer {
 	}
 
 .horizontal-line {
-        border-bottom: 2px solid black; /* Creates a 2px solid black line at the bottom */
-        width: 40%; /* Makes the line span the full width */
+        border-bottom: 2px solid black; 
+        width: 40%; 
 		margin: 0 auto;
     }
 
     .vertical-line {
-        border-left: 1px solid gray; /* Creates a 1px solid gray line on the left */
-        height: 100px; /* Sets the height of the vertical line */
-        display: inline-block; /* Allows side-by-side placement if needed */
+        border-left: 1px solid gray;
+        height: 100px; 
+        display: inline-block; 
         margin-left: 10px;
     }
 
+
+.top-nav {
+  background-color: #00382A; 
+  padding: 15px 30px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.nav-links {
+  display: flex;
+  gap: 25px;
+}
+
+.nav-btn {
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  font-family: Arial, sans-serif;
+  transition: opacity 0.2s;
+}
+
+.nav-btn:hover {
+  opacity: 0.6;
+}
 
