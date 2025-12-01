@@ -73,7 +73,7 @@ footer {
 
 .nav-links {
   display: center;
-  gap: 25px;
+  gap: 50px;
 }
 
 .nav-btn {
@@ -88,6 +88,7 @@ footer {
 .nav-btn:hover {
   opacity: 0.6;
 }
+
 
 
 
