@@ -34,6 +34,14 @@ p {
 		text-align: center;
 	}
 
+header {
+	color: #333;
+        font-size: 10px;
+        line-height: 1.5;
+		text-align: center;
+	    font-family: Arial, sans-serif;
+	}
+
 footer {
 	color: #333;
         font-size: 10px;
@@ -80,4 +88,5 @@ footer {
 .nav-btn:hover {
   opacity: 0.6;
 }
+
 
