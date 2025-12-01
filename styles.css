@@ -77,7 +77,7 @@ footer {
 }
 
 .nav-btn {
-  color: black;
+  color: white;
   text-decoration: none;
   font-weight: 600;
   letter-spacing: 0.5px;
@@ -88,6 +88,7 @@ footer {
 .nav-btn:hover {
   opacity: 0.6;
 }
+
 
 
 
