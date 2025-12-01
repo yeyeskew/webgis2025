@@ -8,12 +8,12 @@ h1 {
 	color: #333;
        font-size: 24px;
         line-height: 1.5;
-		text-align: center;
+		text-align: left;
 	}
 
 h2 {
 	 font-family: Arial, sans-serif;
-		font-size: 16px;
+		font-size: 18px;
 		text-align: center;
 	}
 
@@ -88,5 +88,6 @@ footer {
 .nav-btn:hover {
   opacity: 0.6;
 }
+
 
 
