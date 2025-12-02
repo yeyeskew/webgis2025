@@ -37,7 +37,7 @@ html, body {
 
     const wmsLayer = new ol.layer.Tile({
       source: new ol.source.TileWMS({
-        url: "http://54.167.136.108:8080/geoserver",
+        url: "http://54.167.136.108:8080/geoserver/",
         params: {
           'LAYERS': 'jquinn25:lidar_stream', 'jquinn25:sef_nwi_wetlands', 'jquinn25:sef_streams'
           'TILED': true
@@ -65,9 +65,9 @@ html, body {
 
     const wmsLayer = new ol.layer.Tile({
       source: new ol.source.TileWMS({
-        url: "http://54.167.136.108:8080/geoserver",
+        url: "http://54.167.136.108:8080/geoserver/",
         params: {
-          'LAYERS': 'jquinn25:lidar_stream_Clip', '	jquinn25:sef_streams_Clip', '	jquinn25:sef_roads_Clip'
+          'LAYERS': 'jquinn25:lidar_stream_Clip', 'jquinn25:sef_streams_Clip', '	jquinn25:sef_roads_Clip'
           'TILED': true
         },
         serverType: 'geoserver'
