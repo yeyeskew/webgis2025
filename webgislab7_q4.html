@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Map 2 - Streams + Wetlands</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v9.1.0/ol.css" />
+  <script src="https://cdn.jsdelivr.net/npm/ol@v9.1.0/dist/ol.js"></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+    #map2 {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map2"></div>
+
+  <script>
+    const osm2 = new ol.layer.Tile({
+      source: new ol.source.OSM()
+    });
+
+    // GeoServer layers
+    const lidar_stream = new ol.layer.Tile({
+      source: new ol.source.TileWMS({
+        url: "http://54.167.136.108:8080/geoserver/jquinn25/wms",
+        params: { LAYERS: "jquinn25:lidar_stream", TILED: true },
+        serverType: "geoserver",
+        crossOrigin: "anonymous"
+      })
+    });
+
+    const wetlands = new ol.layer.Tile({
+      source: new ol.source.TileWMS({
+        url: "http://54.167.136.108:8080/geoserver/jquinn25/wms",
+        params: { LAYERS: "jquinn25:sef_nwi_wetlands", TILED: true },
+        serverType: "geoserver",
+        crossOrigin: "anonymous"
+      })
+    });
+
+    const sef_streams = new ol.layer.Tile({
+      source: new ol.source.TileWMS({
+        url: "http://54.167.136.108:8080/geoserver/jquinn25/wms",
+        params: { LAYERS: "jquinn25:sef_streams", TILED: true },
+        serverType: "geoserver",
+        crossOrigin: "anonymous"
+      })
+    });
+
+    const map2 = new ol.Map({
+      target: "map2",
+      layers: [osm2, lidar_stream, wetlands, sef_streams],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([-79.8, 33.1]),
+        zoom: 11
+      })
+    });
+  </script>
+
+</body>
+</html>
