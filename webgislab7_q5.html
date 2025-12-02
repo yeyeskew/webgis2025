@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Map 1 - Lidar + Streams + Roads</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v9.1.0/ol.css" />
+  <script src="https://cdn.jsdelivr.net/npm/ol@v9.1.0/dist/ol.js"></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+
+  <script>
+    const osm = new ol.layer.Tile({
+      source: new ol.source.OSM()
+    });
+
+    const lidar_stream_clip = new ol.layer.Tile({
+      source: new ol.source.TileWMS({
+        url: "http://54.167.136.108:8080/geoserver/jquinn25/wms",
+        params: { LAYERS: "jquinn25:lidar_stream_Clip", TILED: true },
+        serverType: "geoserver",
+        crossOrigin: "anonymous"
+      })
+    });
+
+    const sef_streams_clip = new ol.layer.Tile({
+      source: new ol.source.TileWMS({
+        url: "http://54.167.136.108:8080/geoserver/jquinn25/wms",
+        params: { LAYERS: "jquinn25:sef_streams_Clip", TILED: true },
+        serverType: "geoserver",
+        crossOrigin: "anonymous"
+      })
+    });
+
+    const sef_roads_clip = new ol.layer.Tile({
+      source: new ol.source.TileWMS({
+        url: "http://54.167.136.108:8080/geoserver/jqunn25/wms",
+        params: { LAYERS: "jquinn25:sef_roads_Clip", TILED: true },
+        serverType: "geoserver",
+        crossOrigin: "anonymous"
+      })
+    });
+
+    const map = new ol.Map({
+      target: "map",
+      layers: [osm, lidar_stream_clip, sef_streams_clip, sef_roads_clip],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([-79.8, 33.1]), 
+        zoom: 11
+      })
+    });
+  </script>
+
+</body>
+</html>
