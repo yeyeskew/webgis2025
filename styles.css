@@ -51,7 +51,8 @@ footer {
 	}
 
 .horizontal-line {
-        border-bottom: 2px solid black; 
+		display: center;
+		border-bottom: 2px solid black; 
         width: 85%; 
 		margin: 0 auto;
     }
@@ -97,6 +98,7 @@ footer {
   padding-left: 25px;
 	text-align: left;
 }
+
 
 
 
