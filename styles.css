@@ -52,9 +52,10 @@ footer {
 
 .horizontal-line {
 		display: left;
-		border-bottom: 2px solid black; 
+		border-bottom: 3px solid black; 
         width: 85%; 
 		margin: 0 auto;
+		padding-left:25px;
     }
 
     .vertical-line {
@@ -98,6 +99,7 @@ footer {
   padding-left: 25px;
 	text-align: left;
 }
+
 
 
 
