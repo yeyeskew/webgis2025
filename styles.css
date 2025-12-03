@@ -52,6 +52,7 @@ footer {
 
 .horizontal-line {
 		display: left;
+		text-align: left;
 		border-bottom: 3px solid black; 
         width: 85%; 
 		margin: 0 auto;
@@ -102,11 +103,13 @@ footer {
 
 .horizontal2 {
 		display: left;
+		text-align: left;
 		border-bottom: 3px solid black; 
         width: 45%; 
 		margin: 0 auto;
 		padding-left:25px;
     }
+
 
 
 
